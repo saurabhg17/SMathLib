@@ -9,8 +9,8 @@
 namespace SMathLib {
 ;
 
-//! The structure for accessing coordinates using indexing operator.
-template<typename PointType> 
+//! The PointAccessor structure is used to access coordinates using indexing operator.
+template<typename PointType>
 struct PointAccessor
 {
 	typedef typename SUtils::IteratorTraits<PointType>::value_type CoordType;
