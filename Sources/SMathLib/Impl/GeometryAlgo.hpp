@@ -58,7 +58,7 @@ double glComputeSmallerAngle(const TND& v1, const TND& v2, unsigned int dim, Ang
 		std::ostringstream stream;
 		stream << "ComputeSmallerAngle3D: Invalid argument in acos ";
 		stream << _cosAng;
-		throw Exceptions::InvalidArgumentException(stream.str().c_str());
+		throw SUtils::Exceptions::InvalidArgumentException(stream.str().c_str());
 	}
 	
 	if(_cosAng >  1) _cosAng = +1;

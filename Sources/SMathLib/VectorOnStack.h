@@ -4,7 +4,7 @@
 
 #include "SUtils/NoBoundChecking.h"
 #include "SUtils/StaticCheck.h"
-#include "SUtils/BinaryIO.h"
+//#include "SUtils/BinaryIO.h"
 #include "SMathLib/Types.h"
 
 namespace SMathLib {
