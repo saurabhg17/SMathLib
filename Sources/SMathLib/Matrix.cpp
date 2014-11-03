@@ -1,6 +1,6 @@
 
 #include "Matrix.h"
-#include "SUtils/BinaryIO.h"
+//#include "SUtils/BinaryIO.h"
 #include "gsl/gsl_matrix.h"
 #include "gsl/gsl_linalg.h"
 #include <cassert>
@@ -714,35 +714,34 @@ void Matrix::Read(std::istream& in)
 
 
 // ------------------------------------------------------------------------- //
-void Matrix::WriteBin(std::ostream& out) const
-{
-	SUtils::writeFundamental(out, rows);
-	SUtils::writeFundamental(out, cols);
-	
-	for(int i=0 ; i<rows ; i++)
-	{
-		for(int j=0 ; j<cols ; j++)
-		{
-			SUtils::writeFundamental(out,  this->matrix[i*cols + j]);
-		}
-	}
-}
-
-void Matrix::ReadBin(std::istream& in)
-{
-	rows = SUtils::readFundamental<int>(in);
-	cols = SUtils::readFundamental<int>(in);
-	
-	*this = Matrix(rows, cols);
-	
-	for(int i=0 ; i<rows ; i++)
-	{
-		for(int j=0 ; j<cols ; j++)
-		{
-			this->matrix[i*cols + j] = SUtils::readFundamental<double>(in);
-		}
-	}
-}
+//void Matrix::WriteBin(std::ostream& out) const
+//{
+//	SUtils::writeFundamental(out, rows);
+//	SUtils::writeFundamental(out, cols);
+//	
+//	for(int i=0 ; i<rows ; i++)
+//	{
+//		for(int j=0 ; j<cols ; j++)
+//		{
+//			SUtils::writeFundamental(out,  this->matrix[i*cols + j]);
+//		}
+//	}
+//}
+//void Matrix::ReadBin(std::istream& in)
+//{
+//	rows = SUtils::readFundamental<int>(in);
+//	cols = SUtils::readFundamental<int>(in);
+//	
+//	*this = Matrix(rows, cols);
+//	
+//	for(int i=0 ; i<rows ; i++)
+//	{
+//		for(int j=0 ; j<cols ; j++)
+//		{
+//			this->matrix[i*cols + j] = SUtils::readFundamental<double>(in);
+//		}
+//	}
+//}
 // ------------------------------------------------------------------------- //
 
 };	// End namespace SMathLib.

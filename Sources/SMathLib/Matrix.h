@@ -29,8 +29,8 @@ public:
 	// IO functions.
 	void Write(std::ostream& out) const;
 	void Read(std::istream& in);
-	void WriteBin(std::ostream& out) const;
-	void ReadBin(std::istream& in);
+	//void WriteBin(std::ostream& out) const;
+	//void ReadBin(std::istream& in);
 	
 	// Functions.
 	double	Determinant() const;
