@@ -59,15 +59,14 @@ double glVariance(const Iterator& begin, const Iterator& end, double mean, BiasT
 
 template<typename Iterator>
 double glStdDev(const Iterator& begin, const Iterator& end, BiasTypes bias=eUnBiased);
-
-double glStdDev(double var);
+inline double glStdDev(double var);
 
 // values must be sorted.
 // Return the value of pth-percentile.
-double glPercentile(const std::vector<double>& values, int p);
+inline double glPercentile(const std::vector<double>& values, int p);
 
 // Compute the pth-percentiles for values.
-std::vector<double> glPercentiles(std::vector<double>& values, const std::vector<int>& p);
+inline std::vector<double> glPercentiles(std::vector<double>& values, const std::vector<int>& p);
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ //
 
 #include "SMathLib/Impl/Statistics.hpp"

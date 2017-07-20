@@ -76,7 +76,7 @@ template<typename Iterator>
 double glMean(const Iterator& begin, const Iterator& end)
 {
 	double _mean  = 0.0;
-	Int32  _count = 0;
+	int    _count = 0;
 	double _error = 0.0;
 	for(Iterator _iter=begin ; _iter!=end ; ++_iter, ++_count)
 	{
