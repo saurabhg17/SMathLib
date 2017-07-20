@@ -33,9 +33,9 @@ public:
 	//void ReadBin(std::istream& in);
 	
 	// Functions.
-	double	Determinant() const;
-	Matrix  Svd(Matrix *sigma, Matrix *v) const;
-	Matrix  Inverse() const;
+	//double	Determinant() const;
+	//Matrix  Svd(Matrix *sigma, Matrix *v) const;
+	//Matrix  Inverse() const;
 	Matrix  EigValsSymMat();
 	Matrix	Transpose() const;
 	Matrix  AvgRows() const;
@@ -46,7 +46,7 @@ public:
 	double  VectorNorm2();
 	
 	// Static functions.
-	static Matrix SolveAxB(const Matrix& A, const Matrix& B);
+	//static Matrix SolveAxB(const Matrix& A, const Matrix& B);
 	
 	// Logical operators.
 	bool operator ==(const Matrix& B) const;

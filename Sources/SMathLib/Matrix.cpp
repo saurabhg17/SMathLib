@@ -1,8 +1,8 @@
 
 #include "Matrix.h"
 //#include "SUtils/BinaryIO.h"
-#include "gsl/gsl_matrix.h"
-#include "gsl/gsl_linalg.h"
+//#include "gsl/gsl_matrix.h"
+//#include "gsl/gsl_linalg.h"
 #include <cassert>
 #include <cmath>
 #include <ctime>
@@ -524,119 +524,119 @@ double Matrix::VectorNorm2()
 }
 
 // Find Inverse of a square matrix.
-Matrix Matrix::Inverse() const
-{
-	assert(rows>0 && cols>0 && rows==cols);
-	
-	// Size of the square matrix.
-	int _dim = rows;
-	
-	// Create a copy of the matrix.
-	double* _matrixLU = new double[_dim*_dim];
-	memcpy(_matrixLU, matrix, _dim*_dim*sizeof(double));
-	gsl_matrix_view _gslLU = gsl_matrix_view_array(_matrixLU, _dim, _dim);
-	
-	// Compute the LU decomposition.
-	gsl_permutation* p = gsl_permutation_alloc(_dim);
-	int s;
-	gsl_linalg_LU_decomp(&_gslLU.matrix, p, &s);
-	
-	// Compute inverse.
-	Matrix _inverse(_dim, _dim);
-	gsl_matrix_view gslI = gsl_matrix_view_array(_inverse.matrix, _dim, _dim);
-	gsl_linalg_LU_invert(&_gslLU.matrix, p, &gslI.matrix);
-	
-	// Free local variables.
-	gsl_permutation_free(p);
-	delete [] _matrixLU;
-	
-	return _inverse;
-}
+//Matrix Matrix::Inverse() const
+//{
+//	assert(rows>0 && cols>0 && rows==cols);
+//	
+//	// Size of the square matrix.
+//	int _dim = rows;
+//	
+//	// Create a copy of the matrix.
+//	double* _matrixLU = new double[_dim*_dim];
+//	memcpy(_matrixLU, matrix, _dim*_dim*sizeof(double));
+//	gsl_matrix_view _gslLU = gsl_matrix_view_array(_matrixLU, _dim, _dim);
+//	
+//	// Compute the LU decomposition.
+//	gsl_permutation* p = gsl_permutation_alloc(_dim);
+//	int s;
+//	gsl_linalg_LU_decomp(&_gslLU.matrix, p, &s);
+//	
+//	// Compute inverse.
+//	Matrix _inverse(_dim, _dim);
+//	gsl_matrix_view gslI = gsl_matrix_view_array(_inverse.matrix, _dim, _dim);
+//	gsl_linalg_LU_invert(&_gslLU.matrix, p, &gslI.matrix);
+//	
+//	// Free local variables.
+//	gsl_permutation_free(p);
+//	delete [] _matrixLU;
+//	
+//	return _inverse;
+//}
 // finds SVD of a matrix.
-Matrix Matrix::Svd(Matrix* S, Matrix* V) const
-{
-	// Create a copy of the matrix.
-	double* _matrixA = new double[rows*cols];
-	memcpy(_matrixA, matrix, rows*cols*sizeof(double));
-	gsl_matrix_view _gslA = gsl_matrix_view_array(_matrixA, rows, cols);
-	
-	// Create matrices for U, S and V.
-	Matrix _S(cols, 1);
-	*V = Matrix(cols, cols);
-	gsl_vector_view _gslS = gsl_vector_view_array(_S.matrix, cols);
-	gsl_matrix_view _gslV = gsl_matrix_view_array(V->matrix, cols, cols);
-	
-	Matrix _work(cols, 1);
-	gsl_vector_view _gslWork = gsl_vector_view_array(_work.matrix, cols);
-	gsl_linalg_SV_decomp(&_gslA.matrix, &_gslV.matrix, &_gslS.vector, &_gslWork.vector);
-	
-	*S = Matrix(cols, cols, M_ZEROS);
-	for(int i=0 ; i<cols ; ++i)
-	{
-		S->matrix[i*cols+i] = _S.matrix[i];
-	}
-	
-	return Matrix(rows, cols, _matrixA);
-}
+//Matrix Matrix::Svd(Matrix* S, Matrix* V) const
+//{
+//	// Create a copy of the matrix.
+//	double* _matrixA = new double[rows*cols];
+//	memcpy(_matrixA, matrix, rows*cols*sizeof(double));
+//	gsl_matrix_view _gslA = gsl_matrix_view_array(_matrixA, rows, cols);
+//	
+//	// Create matrices for U, S and V.
+//	Matrix _S(cols, 1);
+//	*V = Matrix(cols, cols);
+//	gsl_vector_view _gslS = gsl_vector_view_array(_S.matrix, cols);
+//	gsl_matrix_view _gslV = gsl_matrix_view_array(V->matrix, cols, cols);
+//	
+//	Matrix _work(cols, 1);
+//	gsl_vector_view _gslWork = gsl_vector_view_array(_work.matrix, cols);
+//	gsl_linalg_SV_decomp(&_gslA.matrix, &_gslV.matrix, &_gslS.vector, &_gslWork.vector);
+//	
+//	*S = Matrix(cols, cols, M_ZEROS);
+//	for(int i=0 ; i<cols ; ++i)
+//	{
+//		S->matrix[i*cols+i] = _S.matrix[i];
+//	}
+//	
+//	return Matrix(rows, cols, _matrixA);
+//}
 // return Determinant of matrix.
-double Matrix::Determinant() const
-{
-	// Size of the square matrix.
-	int _dim = rows;
-	
-	// Create a copy of the matrix.
-	double* _matrixLU = new double[_dim*_dim];
-	memcpy(_matrixLU, matrix, _dim*_dim*sizeof(double));
-	gsl_matrix_view _gslLU = gsl_matrix_view_array(_matrixLU, _dim, _dim);
-	
-	// Compute the LU decomposition.
-	gsl_permutation* p = gsl_permutation_alloc(_dim);
-	int s;
-	gsl_linalg_LU_decomp(&_gslLU.matrix, p, &s);
-	
-	// Compute determinant.
-	double _det = gsl_linalg_LU_det(&_gslLU.matrix, s);
-	
-	// Free local variables.
-	gsl_permutation_free(p);
-	delete [] _matrixLU;
-	
-	return _det;
-}
+//double Matrix::Determinant() const
+//{
+//	// Size of the square matrix.
+//	int _dim = rows;
+//	
+//	// Create a copy of the matrix.
+//	double* _matrixLU = new double[_dim*_dim];
+//	memcpy(_matrixLU, matrix, _dim*_dim*sizeof(double));
+//	gsl_matrix_view _gslLU = gsl_matrix_view_array(_matrixLU, _dim, _dim);
+//	
+//	// Compute the LU decomposition.
+//	gsl_permutation* p = gsl_permutation_alloc(_dim);
+//	int s;
+//	gsl_linalg_LU_decomp(&_gslLU.matrix, p, &s);
+//	
+//	// Compute determinant.
+//	double _det = gsl_linalg_LU_det(&_gslLU.matrix, s);
+//	
+//	// Free local variables.
+//	gsl_permutation_free(p);
+//	delete [] _matrixLU;
+//	
+//	return _det;
+//}
 // ------------------------------------------------------------------------- //
 
 
 // ------------------------------------------------------------------------- //
-Matrix Matrix::SolveAxB(const Matrix& A, const Matrix& B)
-{
-	assert(A.rows==B.rows && B.cols==1);
-	
-	// Compute the LU decomposition of A.
-	gsl_matrix*      gslA = gsl_matrix_alloc(A.rows, A.cols);
-	gsl_permutation* p    = gsl_permutation_alloc(A.rows);
-	int s;
-	gsl_matrix_memcpy(gslA, &gsl_matrix_view_array(A.matrix, A.rows, A.cols).matrix);
-	gsl_linalg_LU_decomp(gslA, p, &s);
-	
-	// Solve A x = B.
-	gsl_vector* gslB = gsl_vector_alloc(B.rows);
-	gsl_vector* gslX = gsl_vector_alloc(B.rows);
-	gsl_vector_memcpy(gslB, &gsl_vector_view_array(B.matrix, B.rows).vector);
-	gsl_linalg_LU_solve(gslA, p, gslB, gslX);
-	
-	// Copy result to Matrix type.
-	Matrix X(A.cols, 1);
-	gsl_vector_view gslTemp = gsl_vector_view_array(X.matrix, A.cols);
-	gsl_vector_memcpy(&gslTemp.vector, gslX);
-	
-	// Free gsl variables.
-	gsl_matrix_free(gslA);
-	gsl_vector_free(gslB);
-	gsl_vector_free(gslX);
-	gsl_permutation_free(p);
-	
-	return X;
-}
+//Matrix Matrix::SolveAxB(const Matrix& A, const Matrix& B)
+//{
+//	assert(A.rows==B.rows && B.cols==1);
+//	
+//	// Compute the LU decomposition of A.
+//	gsl_matrix*      gslA = gsl_matrix_alloc(A.rows, A.cols);
+//	gsl_permutation* p    = gsl_permutation_alloc(A.rows);
+//	int s;
+//	gsl_matrix_memcpy(gslA, &gsl_matrix_view_array(A.matrix, A.rows, A.cols).matrix);
+//	gsl_linalg_LU_decomp(gslA, p, &s);
+//	
+//	// Solve A x = B.
+//	gsl_vector* gslB = gsl_vector_alloc(B.rows);
+//	gsl_vector* gslX = gsl_vector_alloc(B.rows);
+//	gsl_vector_memcpy(gslB, &gsl_vector_view_array(B.matrix, B.rows).vector);
+//	gsl_linalg_LU_solve(gslA, p, gslB, gslX);
+//	
+//	// Copy result to Matrix type.
+//	Matrix X(A.cols, 1);
+//	gsl_vector_view gslTemp = gsl_vector_view_array(X.matrix, A.cols);
+//	gsl_vector_memcpy(&gslTemp.vector, gslX);
+//	
+//	// Free gsl variables.
+//	gsl_matrix_free(gslA);
+//	gsl_vector_free(gslB);
+//	gsl_vector_free(gslX);
+//	gsl_permutation_free(p);
+//	
+//	return X;
+//}
 // ------------------------------------------------------------------------- //
 
 
