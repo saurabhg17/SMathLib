@@ -132,7 +132,7 @@ double glStdDev(double var)
 // Return the value if pth-percentile.
 double glPercentile(const std::vector<double>& values, int p)
 {
-	const int N = values.size();
+	const size_t N = values.size();
 	if(p == 1)
 	{
 		return values[0];
