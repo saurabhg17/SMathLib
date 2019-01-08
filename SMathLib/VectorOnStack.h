@@ -4,8 +4,8 @@
 
 #include "SUtils/NoBoundChecking.h"
 #include "SUtils/StaticCheck.h"
-//#include "SUtils/BinaryIO.h"
 #include "SMathLib/Types.h"
+#include <ostream>
 
 namespace SMathLib {
 ;
@@ -75,9 +75,6 @@ public: // Scalar-Vector arithmetic operations.
 	friend VectorType operator * (const ST& s, const VectorType& B);
 	
 public: // IO functions.
-	
-	void Write(std::ostream& out) const;
-	void Read(std::istream& in);
 	
 	template<typename ET1, unsigned int DIM1, typename CP1> 
 	friend std::ostream& operator << (std::ostream& out, const VectorType& B);

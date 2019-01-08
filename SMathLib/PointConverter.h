@@ -20,7 +20,7 @@ void glConvertPoint(const InputType& in, unsigned int inDim, OutputType& out, un
 	{
 		for(unsigned int i=0 ; i<outDim ; ++i)
 		{
-			IteratorTraits<InputType>::value_type x = PointAccessor<InputType>::get(in, i);
+			typedef SUtils::IteratorTraits<InputType>::value_type x = PointAccessor<InputType>::get(in, i);
 			PointAccessor<OutputType>::set(out, i, x);
 		}
 	}
@@ -28,7 +28,7 @@ void glConvertPoint(const InputType& in, unsigned int inDim, OutputType& out, un
 	{
 		for(unsigned int i=0 ; i<inDim ; ++i)
 		{
-			IteratorTraits<InputType>::value_type x = PointAccessor<InputType>::get(in, i);
+			typedef SUtils::IteratorTraits<InputType>::value_type x = PointAccessor<InputType>::get(in, i);
 			PointAccessor<OutputType>::set(out, i, x);
 		}
 		for(unsigned int i=inDim ; i<outDim ; ++i)

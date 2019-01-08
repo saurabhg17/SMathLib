@@ -1,26 +1,24 @@
 
 #include "StdAfx.h"
-#include "SMathLib/Random.h"
+#include "SMathLib/RandomIntGenerator.h"
 #include <iostream>
 #include <fstream>
-
-using namespace std;
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ //
 int _tmain()
 {
-	SMathLib::Random _random;
-	ofstream fp;
+	SMathLib::RandomIntGenerator _random(131, 143);
+	std::ofstream fp;
 	fp.open("Test.csv");
 	for(int i=0 ; i<1000000 ; ++i)
 	{
-		int x = _random.UniformRand(131, 143);
+		int x = _random.generate();
 		fp << x << "\n";
 		//cout << x << "\n";
 	}
 	fp.close();
 	
-	cout << "\n";
+	std::cout << "\n";
 	return 0;
 }
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ //

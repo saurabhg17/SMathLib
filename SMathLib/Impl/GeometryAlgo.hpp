@@ -250,9 +250,9 @@ void glPluckerCoordinates3D(const T3D& p1, const T3D& p2, double* plucker, bool 
 	{
 		// This is done to avoid comparing huge 
 		// number in the side operator.
-		Int32 maxIndex = -1;
+		int maxIndex = -1;
 		double maxVal = 0.0;
-		for(Int32 i=0 ; i<6 ; ++i)
+		for(int i=0 ; i<6 ; ++i)
 		{
 			if(fabs(maxVal) < fabs(plucker[i]))
 			{
@@ -263,7 +263,7 @@ void glPluckerCoordinates3D(const T3D& p1, const T3D& p2, double* plucker, bool 
 		
 		if(maxIndex != -1)
 		{
-			for(Int32 i=0 ; i<6 ; ++i)
+			for(int i=0 ; i<6 ; ++i)
 			{
 				if(i != maxIndex)
 				{

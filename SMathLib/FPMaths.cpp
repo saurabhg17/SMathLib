@@ -20,7 +20,7 @@ namespace SMathLib {
 //    lexicographically ordered from 1 to 2046.
 int glExponentOfDouble(double x)
 {
-	return int((((*(SUtils::Int64*)&x & 0x7FF0000000000000LL) >> 52) - 1023));
+	return int((((*(__int64*)&x & 0x7FF0000000000000LL) >> 52) - 1023));
 }
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ //
 
@@ -29,11 +29,11 @@ int glExponentOfDouble(double x)
 bool glIsInfinite(double A)
 {
 	// Representation of infinity for double precision number.
-	static const SUtils::Int64 _kInfAsInt = 0x7FF0000000000000LL;
+	static const __int64 _kInfAsInt = 0x7FF0000000000000LL;
 	
 	// An infinity has an exponent of 1023 (shift left 52 positions) and
 	// a zero mantissa. There are two infinities - positive and negative.
-	if ((*(SUtils::Int64*)&A & 0x7FFFFFFFFFFFFFFFLL) == _kInfAsInt)
+	if ((*(__int64*)&A & 0x7FFFFFFFFFFFFFFFLL) == _kInfAsInt)
 	{
 		return true;
 	}
@@ -50,8 +50,8 @@ bool glIsNan(double A)
 {
 	// A NAN has an exponent of 1023 (shifted left 52 positions) and
 	// a non-zero mantissa. There are two Nan's - positive and negative.
-	SUtils::Int64 _exp      = *(SUtils::Int64*)&A & 0x7FF0000000000000LL;
-	SUtils::Int64 _mantissa = *(SUtils::Int64*)&A & 0xFFFFFFFFFFFFFLL;
+	__int64 _exp      = *(__int64*)&A & 0x7FF0000000000000LL;
+	__int64 _mantissa = *(__int64*)&A & 0xFFFFFFFFFFFFFLL;
 	
 	if(_exp == 0x7FF0000000000000LL && _mantissa != 0)
 	{
@@ -69,7 +69,7 @@ bool glIsNan(double A)
 Sign glSign(double A)
 {
 	// The sign bit of a number is the highest bit.
-	if(((*(SUtils::Int64*)&A) & 0x8000000000000000LL) > 0)
+	if(((*(__int64*)&A) & 0x8000000000000000LL) > 0)
 	{
 		return eSign_Negative;
 	}

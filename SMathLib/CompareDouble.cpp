@@ -79,4 +79,34 @@ bool glCompareDouble(double A, double B, double maxRelErr, double maxAbsErr, int
 }
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ //
 
+
+// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ //
+bool glCompareArray(const double* array1, const double* array2, size_t length, double maxAbsError, double maxRelError, int checks)
+{
+	for(size_t i=0 ; i<length ; ++i)
+	{
+		if(!glCompareDouble(array1[i], array2[i], maxAbsError, maxRelError, checks))
+		{
+			return false;
+		}
+	}
+	return true;
+}
+// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ //
+
+
+// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ //
+bool glCompareArray(double scalar, const double* array1, size_t length, double maxAbsError, double maxRelError, int checks)
+{
+	for(size_t i=0 ; i<length ; ++i)
+	{
+		if(!glCompareDouble(scalar, array1[i], maxAbsError, maxRelError, checks))
+		{
+			return false;
+		}
+	}
+	return true;
+}
+// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ //
+
 };	// End namespace SMathLib.

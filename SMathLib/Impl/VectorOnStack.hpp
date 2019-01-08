@@ -447,38 +447,6 @@ VectorOnStack<ET1, DIM1, CP1> operator * (const ST& s, const VectorOnStack<ET1, 
 
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ //
-//! Write vector to a binary stream.
-//! The format of the data written is:
-//! Coordinate1 Coordinate2 ... CoordinateN.
-//! \param out The output binary stream.
-template<typename ET, unsigned int DIM, typename CP>
-void VectorOnStack<ET, DIM, CP>::Write(std::ostream& out) const
-{
-	for(unsigned int i=0 ; i<DIM ; ++i)
-	{
-		glWriteFundamental(out, mVectorData[i]);
-	}
-}
-// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ //
-
-
-// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ //
-//! Read vector data from binary stream.
-//! The format of the stream should be:
-//! Coordinate1 Coordinate2 ... CoordinateN.
-//! \param in The input binary stream.
-template<typename ET, unsigned int DIM, typename CP>
-void VectorOnStack<ET, DIM, CP>::Read(std::istream& in)
-{
-	for(unsigned int i=0 ; i<DIM ; ++i)
-	{
-		mVectorData[i] = glReadFundamental<ET>(in);
-	}
-}
-// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ //
-
-
-// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ //
 //! Stream vector to a output character stream, out << v.
 //! \param out Output character stream.
 //! \param B Vector which should be streamed to the stream.

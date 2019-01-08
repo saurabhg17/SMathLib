@@ -63,7 +63,7 @@ double glDistance(InputIterator x1, InputIterator x2,
 	
 	else if(metric==eInfinityNorm || metric==eMaximumNorm)
 	{
-		double _distance = -SMathLib::doubleMAX;
+		double _distance = std::numeric_limits<double>::max();
 		while(x1!=x2)
 		{
 			if(_distance < abs(*x1 - *y1))
@@ -108,7 +108,7 @@ double glDistance(InputIterator x1, InputIterator x2,
 		return _distance/(sqrt(_mag1)*sqrt(_mag2));
 	}
 	
-	return doubleMAX;
+	return std::numeric_limits<double>::quiet_NaN();
 }
 
 };	// End namespace SMathLib.

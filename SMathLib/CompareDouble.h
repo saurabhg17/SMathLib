@@ -27,6 +27,10 @@ namespace SMathLib {
 SMATHLIB_DLL_API bool glCompareDouble(double A, double B, double maxRelErr, 
 									  double maxAbsErr, int checks = eMaths_NoChecks);
 
+
+SMATHLIB_DLL_API bool glCompareArray(const double* array1, const double* array2, size_t length, double maxAbsError, double maxRelError, int checks = eMaths_NoChecks);
+SMATHLIB_DLL_API bool glCompareArray(double  scalar      , const double* array1, size_t length, double maxAbsError, double maxRelError, int checks = eMaths_NoChecks);
+
 };	// End namespace SMathLib.
 
 #endif // _SMATHLIB_COMPAREDOUBLE_H_

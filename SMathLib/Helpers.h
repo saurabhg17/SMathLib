@@ -18,9 +18,9 @@ inline int glRound(float x)
 //! Round a double precision floating point number.
 //! \param x Input value which should be rounded to int.
 //! \return Round(x) = int(x + 0.5).
-inline SUtils::Int64 glRound(double x)
+inline __int64 glRound(double x)
 {
-	return SUtils::Int64(x + 0.5);
+	return __int64(x + 0.5);
 }
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ //
 
