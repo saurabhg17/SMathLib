@@ -1,5 +1,4 @@
 
-#include "StdAfx.h"
 #include <iostream>
 #include "SMathLib\AxisAngle.h"
 #include "SMathLib\BarycentricCoords.h"
@@ -27,7 +26,7 @@
 using namespace std;
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ //
-int _tmain()
+int main()
 {
 	
 	cout << "\n";

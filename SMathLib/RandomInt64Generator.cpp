@@ -1,38 +1,38 @@
 
-#include "RandomIntGenerator.h"
+#include "RandomInt64Generator.h"
 #include <random>
 
 namespace SMathLib {
 ;
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ //
-struct RandomIntGeneratorPriv
+struct RandomInt64GeneratorPriv
 {
-	RandomIntGeneratorPriv()
+	RandomInt64GeneratorPriv()
 		: mGenerator(mRandomDevice()), mDistribution(1, 100)
 	{}
 
-	RandomIntGeneratorPriv(const int minValue, const int maxValue)
+	RandomInt64GeneratorPriv(const long long minValue, const long long maxValue)
 		: mGenerator(mRandomDevice()), mDistribution(minValue, maxValue)
 	{}
 
-	std::random_device                 mRandomDevice;
-	std::mt19937                       mGenerator;
-	std::uniform_int_distribution<int> mDistribution;
+	std::random_device                       mRandomDevice;
+	std::mt19937                             mGenerator;
+	std::uniform_int_distribution<long long> mDistribution;
 };
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ //
 
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ //
-RandomIntGenerator::RandomIntGenerator()
-	: mPriv(new RandomIntGeneratorPriv)
+RandomInt64Generator::RandomInt64Generator()
+	: mPriv(new RandomInt64GeneratorPriv)
 {
 }
-RandomIntGenerator::RandomIntGenerator(const int minValue, const int maxValue)
-	: mPriv(new RandomIntGeneratorPriv(minValue, maxValue))
+RandomInt64Generator::RandomInt64Generator(const long long minValue, const long long maxValue)
+	: mPriv(new RandomInt64GeneratorPriv(minValue, maxValue))
 {
 }
-RandomIntGenerator::~RandomIntGenerator()
+RandomInt64Generator::~RandomInt64Generator()
 {
 	delete mPriv;
 }
@@ -40,7 +40,7 @@ RandomIntGenerator::~RandomIntGenerator()
 
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ //
-int RandomIntGenerator::generate() const
+long long RandomInt64Generator::generate() const
 {
 	return mPriv->mDistribution(mPriv->mGenerator);
 }

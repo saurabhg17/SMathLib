@@ -1,18 +1,17 @@
 
-#include "StdAfx.h"
 #include "SMathLib/RandomIntGenerator.h"
 #include <iostream>
 #include <fstream>
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ //
-int _tmain()
+int main()
 {
 	SMathLib::RandomIntGenerator _random(131, 143);
 	std::ofstream fp;
 	fp.open("Test.csv");
 	for(int i=0 ; i<1000000 ; ++i)
 	{
-		int x = _random.generate();
+		long long x = _random.generate();
 		fp << x << "\n";
 		//cout << x << "\n";
 	}
