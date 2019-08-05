@@ -1,11 +1,9 @@
 
 #include "Matrix.h"
-//#include "SUtils/BinaryIO.h"
-//#include "gsl/gsl_matrix.h"
-//#include "gsl/gsl_linalg.h"
 #include <cassert>
 #include <cmath>
 #include <ctime>
+#include <cstring>
 
 namespace SMathLib {
 ;

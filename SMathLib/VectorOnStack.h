@@ -6,6 +6,7 @@
 #include "SUtils/StaticCheck.h"
 #include "SMathLib/Types.h"
 #include <ostream>
+#include <cstring>
 
 namespace SMathLib {
 ;

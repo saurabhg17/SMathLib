@@ -4,6 +4,7 @@
 
 #include "SMathLib/Config.h"
 #include "SMathLib/Types.h"
+#include <cstddef>
 
 namespace SMathLib {
 ;

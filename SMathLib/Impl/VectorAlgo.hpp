@@ -8,8 +8,8 @@
 template<typename TND>
 typename SUtils::IteratorTraits<TND>::value_type glVectorMagnitude2(const TND& v, unsigned int dim)
 {
-	typedef PointAccessor<TND>              PA;
-	typedef SUtils::IteratorTraits<TND>::value_type CT;
+	typedef PointAccessor<TND>                               PA;
+	typedef typename SUtils::IteratorTraits<TND>::value_type CT;
 	
 	CT _magnitude = 0;
 	for(unsigned int i=0 ; i<dim ; ++i)
@@ -43,8 +43,8 @@ double glVectorMagnitude(const TND& v, unsigned int dim)
 template<typename TND>
 void glVectorNormalize(TND* v, unsigned int dim)
 {
-	typedef PointAccessor<TND>              PA;
-	typedef SUtils::IteratorTraits<TND>::value_type CT;
+	typedef PointAccessor<TND>                               PA;
+	typedef typename SUtils::IteratorTraits<TND>::value_type CT;
 	
 	CT _magnitude = glVectorMagnitude<TND>(*v, dim);
 	if(_magnitude != 0)
@@ -69,8 +69,8 @@ void glVectorNormalize(TND* v, unsigned int dim)
 template<typename TND>
 typename SUtils::IteratorTraits<TND>::value_type glDotProduct(const TND& v1, const TND& v2, unsigned int dim)
 {
-	typedef PointAccessor<TND>              PA;
-	typedef SUtils::IteratorTraits<TND>::value_type CT;
+	typedef PointAccessor<TND>                               PA;
+	typedef typename SUtils::IteratorTraits<TND>::value_type CT;
 	
 	CT _dotProduct = 0;
 	for(unsigned int i=0 ; i<dim ; ++i)
@@ -98,8 +98,8 @@ T3D glCrossProduct3D(const T3D& v1, const T3D& v2)
 	// xi + yj + zk = | p10 p11 p12 |
 	//                | p20 p21 p22 |
 	
-	typedef PointAccessor<T3D>              PA;
-	typedef SUtils::IteratorTraits<T3D>::value_type CT;
+	typedef PointAccessor<T3D>                               PA;
+	typedef typename SUtils::IteratorTraits<T3D>::value_type CT;
 	
 	CT x = PA::get(v1,1)*PA::get(v2,2) - PA::get(v2,1)*PA::get(v1,2);
 	CT y = PA::get(v2,0)*PA::get(v1,2) - PA::get(v1,0)*PA::get(v2,2);
