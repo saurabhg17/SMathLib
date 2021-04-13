@@ -1,3 +1,8 @@
+// 
+// This file is part of SLogLib; you can redistribute it and/or 
+// modify it under the terms of the MIT License.
+// Author: Saurabh Garg (saurabhgarg@mysoc.net)
+// 
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ //
 //! Compute square of the euclidean distance between two points in given dimension.

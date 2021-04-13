@@ -1,5 +1,14 @@
+// 
+// This file is part of SLogLib; you can redistribute it and/or 
+// modify it under the terms of the MIT License.
+// Author: Saurabh Garg (saurabhgarg@mysoc.net)
+// 
 
 #include "Matrix.h"
+#include "CompareDouble.h"
+#include <Eigen/Dense>
+#include <Eigen/SVD>
+#include <Eigen/LU>
 #include <cassert>
 #include <cmath>
 #include <ctime>
@@ -16,71 +25,82 @@ Matrix::Matrix()
 {
 	rows    = 0;
 	cols    = 0;
-	matType = M_NULL;
-	matrix  = NULL;
+	matType = MatrixType::Null;
+	matrix  = nullptr;
 }
 
 // creates r*c matrix. default type is M_ZEROS
-Matrix::Matrix(int r, int c, int type)
+Matrix::Matrix(size_t r, size_t c, MatrixType type)
 {
 	// rows and cols must be non-negative.
 	assert(r>=0 && c>=0);
 	
-	// check if type is correct.
-	assert(type == M_ZEROS || type == M_EYE ||
-	       type == M_RAND  || type == M_ONES);
-	
 	rows = r;
 	cols = c;
 	
-	if(rows==cols)
-		matType = M_SQRMATRIX;
-	if(rows==1 && cols!=1)
-		matType = M_ROWVECTOR;
-	if(rows!=1 && cols==1)
-		matType = M_COLVECTOR;
+	if(rows == cols)
+	{
+		matType = MatrixType::Square;
+	}
+	if(rows == 1 && cols != 1)
+	{
+		matType = MatrixType::RowVector;
+	}
+	if(rows != 1 && cols == 1)
+	{
+		matType = MatrixType::ColumnVector;
+	}
 	
 	matrix = new double[rows*cols];
-	assert(matrix);		// check if memory was allocated.
+	assert(matrix);
 	
 	// initialize matrix based on type.
-	if(type == M_ZEROS)		// zero matrix.
+	if(type == MatrixType::Zero)
 	{
-		for(int i=0 ; i<rows*cols ; i++)
-			matrix[i] = 0;
+		memset(matrix, 0, rows * cols * sizeof(double));
 	}
 	
-	else if(type == M_EYE)		// identity matrix.
+	else if(type == MatrixType::Identity)
 	{
-		for(int i=0 ; i<rows ; i++)
-			for(int j=0 ; j<cols ; j++)
-			{
-				if(i==j)
-					matrix[i*cols+j] = 1;
-				else
-					matrix[i*cols+j] = 0;
-			}
-	}
-	
-	else if(type == M_RAND)		// random matrix.
-	{
-		srand( (unsigned int) time(NULL) );
-		for(int i=0 ; i<rows ; i++)
+		for(size_t i=0 ; i<rows ; i++)
 		{
-			for(int j=0 ; j<cols ; j++)
-				matrix[i*cols+j] = (double)(rand()%100)/100.0;
+			for(size_t j=0 ; j<cols ; j++)
+			{
+				if(i == j)
+				{
+					matrix[i * cols + j] = 1;
+				}
+				else
+				{
+					matrix[i * cols + j] = 0;
+				}
+			}
 		}
 	}
 	
-	else if(type == M_ONES)		// matrix with all ones.
+	else if(type == MatrixType::Random)
 	{
-		for(int i=0 ; i<rows*cols ; i++)
-		matrix[i] = 1;
+		srand((unsigned int) time(nullptr));
+		for(size_t i=0 ; i<rows ; i++)
+		{
+			for(size_t j=0 ; j<cols ; j++)
+			{
+				matrix[i * cols + j] = (double)(rand() % 100) / 100.0;
+			}
+		}
+	}
+	
+	else if(type == MatrixType::Ones)
+	{
+		for(size_t i=0 ; i<rows*cols ; i++)
+		{
+			matrix[i] = 1;
+		}
 	}
 }
 
 // constructs a matrix using a linear array.
-Matrix::Matrix(int r, int c, double* data)
+Matrix::Matrix(size_t r, size_t c, const double* data)
 {
 	// rows and cols must be non-negative.
 	assert(r>=0 && c>=0);
@@ -88,12 +108,18 @@ Matrix::Matrix(int r, int c, double* data)
 	rows = r;
 	cols = c;
 	
-	if(rows==cols)
-		matType = M_SQRMATRIX;
-	if(rows==1 && cols!=1)
-		matType = M_ROWVECTOR;
-	if(rows!=1 && cols==1)
-		matType = M_COLVECTOR;
+	if (rows == cols)
+	{
+		matType = MatrixType::Square;
+	}
+	if (rows == 1 && cols != 1)
+	{
+		matType = MatrixType::RowVector;
+	}
+	if (rows != 1 && cols == 1)
+	{
+		matType = MatrixType::ColumnVector;
+	}
 	
 	matrix = new double[rows*cols];
 	assert(matrix && data);	// check if memory was allocated.
@@ -106,8 +132,8 @@ Matrix::Matrix(const Matrix& B)
 {
 	rows    = 0;
 	cols    = 0;
-	matType = M_NULL;
-	matrix  = NULL;
+	matType = MatrixType::Null;
+	matrix  = nullptr;
 	
 	// call assignment operator.
 	*this = B;
@@ -117,7 +143,9 @@ Matrix::Matrix(const Matrix& B)
 Matrix::~Matrix()
 {
 	if(matrix)
-		delete []matrix;
+	{
+		delete[] matrix;
+	}
 }
 // ------------------------------------------------------------------------- //
 
@@ -130,14 +158,11 @@ Matrix::~Matrix()
 // assignment operator.
 Matrix& Matrix::operator =(const Matrix& B)
 {
-//	assert(B.rows>=0 && B.cols>=0);	// dimensions of B must be positive.	
-//	assert(B.matrix);				// B's matrix must be non-null.
-	
-	if((B.rows == 0 && B.cols == 0) || B.matrix == NULL)
+	if((B.rows == 0 && B.cols == 0) || B.matrix == nullptr)
 	{
 		rows   = 0;
 		cols   = 0;
-		matrix = NULL;
+		matrix = nullptr;
 		return *this;
 	}
 	
@@ -146,16 +171,18 @@ Matrix& Matrix::operator =(const Matrix& B)
 	matType = B.matType;
 	
 	if(this->matrix)
-		delete []this->matrix;
+	{
+		delete[]this->matrix;
+	}
 	this->matrix = new double[rows*cols];
-	assert(this->matrix);	// check if memory was allocated.
+	assert(this->matrix);
 	
 	memcpy(this->matrix, B.matrix, rows*cols*sizeof(double));
 	return *this;
 }
 
 // indexing operator.
-double& Matrix::operator ()(int r, int c) const
+double& Matrix::operator ()(size_t r, size_t c) const
 {
 	assert(r>=0 && r<rows && c>=0 && c<cols);
 	assert(matrix);
@@ -164,16 +191,16 @@ double& Matrix::operator ()(int r, int c) const
 }
 
 // indexing operator
-double& Matrix::operator [](int index) const
+double& Matrix::operator [](size_t index) const
 {
 	assert(index>=0 && index<rows*cols);
-	assert(matrix);
+	assert(matrix != nullptr);
 	
 	return matrix[index];
 }
 
 // sub-matrix indexing operator.
-Matrix Matrix::operator ()(int r1, int c1, int r2, int c2) const
+Matrix Matrix::operator ()(size_t r1, size_t c1, size_t r2, size_t c2) const
 {
 	assert(r1>=0 && r2<rows && c1>=0 && c1<cols);
 	
@@ -181,21 +208,27 @@ Matrix Matrix::operator ()(int r1, int c1, int r2, int c2) const
 	submatrix.rows = r2 - r1 + 1;
 	submatrix.cols = c2 - c1 + 1;
 	
-	if(submatrix.rows == submatrix.cols)
-		submatrix.matType = M_SQRMATRIX;
-	else if(submatrix.rows==1 && submatrix.cols!=1)
-		submatrix.matType = M_ROWVECTOR;
-	else if(submatrix.rows!=1 && submatrix.cols==1)
-		submatrix.matType = M_COLVECTOR;
+	if (submatrix.rows == submatrix.cols)
+	{
+		submatrix.matType = MatrixType::Square;
+	}
+	else if (submatrix.rows == 1 && submatrix.cols != 1)
+	{
+		submatrix.matType = MatrixType::RowVector;
+	}
+	else if (submatrix.rows != 1 && submatrix.cols == 1)
+	{
+		submatrix.matType = MatrixType::ColumnVector;
+	}
 	
 	submatrix.matrix = new double[submatrix.rows*submatrix.cols];
 	assert(submatrix.matrix);
 	
-	int x = 0, y = 0;
-	for(int i=r1 ; i<=r2 ; i++)
+	size_t x = 0, y = 0;
+	for(size_t i=r1 ; i<=r2 ; i++)
 	{
 		y = 0;
-		for(int j=c1 ; j<=c2 ; j++)
+		for(size_t j=c1 ; j<=c2 ; j++)
 		{
 			submatrix.matrix[x*submatrix.cols+y] = matrix[i*cols+j];
 			y++;
@@ -219,9 +252,13 @@ Matrix Matrix::operator +(const Matrix& B) const
 	assert(matrix && B.matrix);
 	
 	Matrix temp(rows,cols);
-	for(int i=0;i<rows;i++)
-		for(int j=0;j<cols;j++)
-			temp.matrix[i*cols+j] = matrix[i*cols+j] + B.matrix[i*cols+j];
+	for (size_t i = 0; i < rows; i++)
+	{
+		for (size_t j = 0; j < cols; j++)
+		{
+			temp.matrix[i * cols + j] = matrix[i * cols + j] + B.matrix[i * cols + j];
+		}
+	}
 	return temp;
 }
 
@@ -231,9 +268,13 @@ Matrix& Matrix::operator +=(const Matrix& B)
 	assert(rows==B.rows && cols==B.cols);
 	assert(matrix && B.matrix);
 	
-	for(int i=0;i<rows;i++)
-		for(int j=0;j<cols;j++)
-			matrix[i*cols+j] = matrix[i*cols+j] + B.matrix[i*cols+j];
+	for (size_t i = 0; i < rows; i++)
+	{
+		for (size_t j = 0; j < cols; j++)
+		{
+			matrix[i * cols + j] = matrix[i * cols + j] + B.matrix[i * cols + j];
+		}
+	}
 	
 	return *this;
 }
@@ -245,9 +286,13 @@ Matrix Matrix::operator -(const Matrix& B) const
 	assert(matrix && B.matrix);
 	
 	Matrix temp(rows,cols);
-	for(int i=0;i<rows;i++)
-		for(int j=0;j<cols;j++)
-			temp.matrix[i*cols+j] = this->matrix[i*cols+j] - B.matrix[i*cols+j];
+	for (size_t i = 0; i < rows; i++)
+	{
+		for (size_t j = 0; j < cols; j++)
+		{
+			temp.matrix[i * cols + j] = this->matrix[i * cols + j] - B.matrix[i * cols + j];
+		}
+	}
 	return temp;
 }
 
@@ -257,9 +302,13 @@ Matrix& Matrix::operator -=(const Matrix& B)
 	assert(rows==B.rows && cols==B.cols);
 	assert(matrix && B.matrix);
 	
-	for(int i=0;i<rows;i++)
-		for(int j=0;j<cols;j++)
-			matrix[i*cols+j] = this->matrix[i*cols+j] - B.matrix[i*cols+j];
+	for (size_t i = 0; i < rows; i++)
+	{
+		for (size_t j = 0; j < cols; j++)
+		{
+			matrix[i * cols + j] = this->matrix[i * cols + j] - B.matrix[i * cols + j];
+		}
+	}
 	
 	return *this;
 }
@@ -270,9 +319,13 @@ Matrix Matrix::operator *(double s) const
 	assert(matrix);
 	
 	Matrix temp(rows, cols);
-	for(int i=0;i<rows;i++)
-		for(int j=0;j<cols;j++)
-			temp.matrix[i*cols+j] = this->matrix[i*cols+j] * s;
+	for (size_t i = 0; i < rows; i++)
+	{
+		for (size_t j = 0; j < cols; j++)
+		{
+			temp.matrix[i * cols + j] = this->matrix[i * cols + j] * s;
+		}
+	}
 	return temp;
 }
 
@@ -281,9 +334,13 @@ Matrix& Matrix::operator *=(double s)
 {
 	assert(matrix);
 	
-	for(int i=0;i<rows;i++)
-		for(int j=0;j<cols;j++)
-			matrix[i*cols+j] = this->matrix[i*cols+j] * s;
+	for (size_t i = 0; i < rows; i++)
+	{
+		for (size_t j = 0; j < cols; j++)
+		{
+			matrix[i * cols + j] = this->matrix[i * cols + j] * s;
+		}
+	}
 	
 	return *this;
 }
@@ -294,9 +351,14 @@ Matrix Matrix::operator /(double s) const
 	assert(matrix);
 	
 	Matrix temp(rows, cols);
-	for(int i=0;i<rows;i++)
-		for(int j=0;j<cols;j++)
-			temp.matrix[i*cols+j] = this->matrix[i*cols+j] / s;
+	for (size_t i = 0; i < rows; i++)
+	{
+		for (size_t j = 0; j < cols; j++)
+		{
+			temp.matrix[i * cols + j] = this->matrix[i * cols + j] / s;
+		}
+	}
+
 	return temp;
 }
 
@@ -304,9 +366,13 @@ Matrix& Matrix::operator /=(double s)
 {
 	assert(matrix);
 	
-	for(int i=0;i<rows;i++)
-		for(int j=0;j<cols;j++)
-			matrix[i*cols+j] = this->matrix[i*cols+j] / s;
+	for (size_t i = 0; i < rows; i++)
+	{
+		for (size_t j = 0; j < cols; j++)
+		{
+			matrix[i * cols + j] = this->matrix[i * cols + j] / s;
+		}
+	}
 	
 	return *this;
 }
@@ -316,14 +382,16 @@ Matrix Matrix::operator *(const Matrix& B) const
 {
 	assert(cols == B.rows);
 	
-	Matrix temp(rows, B.cols);
-	for(int i=0 ; i<rows ; i++)
+	Matrix temp(rows, B.cols, MatrixType::Zero);
+	for(size_t i=0 ; i<rows ; i++)
 	{
-		for(int j=0 ; j<B.cols ; j++)
-			for(int l=0 ; l<cols ; l++)
+		for (size_t j = 0; j < B.cols; j++)
+		{
+			for (size_t l = 0; l < cols; l++)
 			{
-				temp(i,j) = temp(i,j)+matrix[i*cols+l]*B.matrix[l*(B.cols)+j];
+				temp(i, j) = temp(i, j) + matrix[i * cols + l] * B.matrix[l * (B.cols) + j];
 			}
+		}
 	}
 	
 	return temp;
@@ -334,10 +402,10 @@ Matrix& Matrix::operator *=(const Matrix& B)
 	assert(cols == B.rows);
 	
 	Matrix temp(rows, B.cols);
-	for(int i=0 ; i<rows ; i++)
+	for(size_t i=0 ; i<rows ; i++)
 	{
-		for(int j=0 ; j<B.cols ; j++)
-			for(int l=0 ; l<cols ; l++)
+		for(size_t j=0 ; j<B.cols ; j++)
+			for(size_t l=0 ; l<cols ; l++)
 			{
 				temp(i,j) = temp(i,j)+matrix[i*cols+l]*B.matrix[l*(B.cols)+j];
 			}
@@ -360,10 +428,12 @@ bool Matrix::operator ==(const Matrix& B) const
 	assert(B.matrix && B.rows>=0 && B.cols>=0);
 	assert(rows==B.rows && cols==B.cols);
 	
-	for(int i=0 ; i<rows*cols ; i++)
+	for(size_t i=0 ; i<rows*cols ; i++)
 	{
-		if(matrix[i] != B.matrix[i])
+		if (matrix[i] != B.matrix[i])
+		{
 			return false;
+		}
 	}
 	
 	return true;
@@ -375,10 +445,12 @@ bool Matrix::operator !=(const Matrix& B) const
 	assert(B.matrix && B.rows>=0 && B.cols>=0);
 	assert(rows==B.rows && cols==B.cols);
 	
-	for(int i=0 ; i<rows*cols ; i++)
+	for(size_t i=0 ; i<rows*cols ; i++)
 	{
-		if(matrix[i] != B.matrix[i])
+		if (matrix[i] != B.matrix[i])
+		{
 			return true;
+		}
 	}
 	
 	return false;
@@ -390,10 +462,12 @@ bool Matrix::IsEqual(const Matrix& B, double tolerance) const
 	assert(B.matrix && B.rows>=0 && B.cols>=0);
 	assert(rows==B.rows && cols==B.cols);
 	
-	for(int i=0 ; i<rows*cols ; i++)
+	for(size_t i=0 ; i<rows*cols ; i++)
 	{
-		if(fabs(matrix[i]-B.matrix[i]) > tolerance)
+		if(!glCompareDouble(matrix[i], B.matrix[i], tolerance, tolerance) )
+		{
 			return false;
+		}
 	}
 	
 	return true;
@@ -402,16 +476,7 @@ bool Matrix::IsEqual(const Matrix& B, double tolerance) const
 // check equivalence of two matrices.
 bool Matrix::IsNotEqual(const Matrix& B, double tolerance)	const
 {
-	assert(B.matrix && B.rows>=0 && B.cols>=0);
-	assert(rows==B.rows && cols==B.cols);
-	
-	for(int i=0 ; i<rows*cols ; i++)
-	{
-		if(fabs(matrix[i]-B.matrix[i]) > tolerance)
-			return true;
-	}
-	
-	return false;
+	return !this->IsEqual(B, tolerance);
 }
 // ------------------------------------------------------------------------- //
 
@@ -422,16 +487,15 @@ bool Matrix::IsNotEqual(const Matrix& B, double tolerance)	const
 // ------------------------------------------------------------------------- //
 
 // set submatrix of a matrix.
-void Matrix::SetSubMatrix(int r1, int c1, int r2, int c2, 
-                              const Matrix &B)
+void Matrix::SetSubMatrix(size_t r1, size_t c1, size_t r2, size_t c2, const Matrix &B)
 {
 	assert(r1>=0 && r2<rows && c1>=0 && c2<cols);
 	
-	int x = 0, y = 0;
-	for(int i=r1 ; i<=r2 ; i++)
+	size_t x = 0, y = 0;
+	for(size_t i=r1 ; i<=r2 ; i++)
 	{
 		y = 0;
-		for(int j=c1 ; j<=c2 ; j++)
+		for(size_t j=c1 ; j<=c2 ; j++)
 		{
 			matrix[i*cols+j] = B.matrix[x*B.cols+y];
 			y++;
@@ -441,21 +505,25 @@ void Matrix::SetSubMatrix(int r1, int c1, int r2, int c2,
 }
 
 // set a row of the matrix.
-void Matrix::SetRow(int r, const Matrix &B)
+void Matrix::SetRow(size_t r, const Matrix &B)
 {
 	assert(r>=0 && r<rows);
 	
-	for(int j=0 ; j<=cols ; j++)
-		matrix[r*cols+j] = B.matrix[j];
+	for (size_t j = 0; j <= cols; j++)
+	{
+		matrix[r * cols + j] = B.matrix[j];
+	}
 }
 
 // set a col of the matrix.
-void Matrix::SetCol(int c, const Matrix &B)
+void Matrix::SetCol(size_t c, const Matrix &B)
 {
 	assert(c>=0 && c<cols);
 	
-	for(int i=0 ; i<=rows ; i++)
-		matrix[i*cols+c] = B.matrix[i];
+	for (size_t i = 0; i <= rows; i++)
+	{
+		matrix[i * cols + c] = B.matrix[i];
+	}
 }
 
 // Transpose of a matrix
@@ -464,9 +532,13 @@ Matrix Matrix::Transpose() const
 	assert(matrix);
 	
 	Matrix temp(cols,rows);
-	for(int i=0 ; i<rows ; i++)
-		for(int j=0 ; j<cols ; j++)
-			temp.matrix[j*rows+i] = this->matrix[i*cols+j];
+	for (size_t i = 0; i < rows; i++)
+	{
+		for (size_t j = 0; j < cols; j++)
+		{
+			temp.matrix[j * rows + i] = this->matrix[i * cols + j];
+		}
+	}
 	return temp;
 }
 
@@ -475,9 +547,9 @@ Matrix Matrix::AvgRows() const
 {
 	Matrix avg(rows, 1);
 	
-	for(int i=0 ; i<rows ; i++)
+	for(size_t i=0 ; i<rows ; i++)
 	{
-		for(int j=0 ; j<cols ; j++)
+		for(size_t j=0 ; j<cols ; j++)
 		{
 			avg(i, 0) = avg(i, 0) + matrix[i*cols+j];
 		}
@@ -491,15 +563,21 @@ Matrix Matrix::AvgRows() const
 double Matrix::VectorNorm()
 {
 	// must be a vector.
-	if(rows != 1 && cols != 1)
+	if (rows != 1 && cols != 1)
+	{
 		return -1;
+	}
 	
-	if(rows == 1 && cols == 1)
+	if (rows == 1 && cols == 1)
+	{
 		return matrix[0];
+	}
 	
 	double norm = 0;
-	for(int i=0 ; i<rows+cols-1 ; i++)
-		norm += matrix[i]*matrix[i];
+	for (size_t i = 0; i < rows + cols - 1; i++)
+	{
+		norm += matrix[i] * matrix[i];
+	}
 	
 	return sqrt(norm);
 }
@@ -508,133 +586,92 @@ double Matrix::VectorNorm()
 double Matrix::VectorNorm2()
 {
 	// must be a vector.
-	if(rows != 1 && cols != 1)
+	if (rows != 1 && cols != 1)
+	{
 		return -1;
+	}
 	
-	if(rows == 1 && cols == 1)
+	if (rows == 1 && cols == 1)
+	{
 		return matrix[0];
+	}
 	
 	double norm = 0;
-	for(int i=0 ; i<rows+cols-1 ; i++)
-		norm += matrix[i]*matrix[i];
+	for (size_t i = 0; i < rows + cols - 1; i++)
+	{
+		norm += matrix[i] * matrix[i];
+	}
 	
 	return norm;
 }
 
+Matrix Matrix::Diagonal() const
+{
+	assert(rows == cols);
+	Matrix _diagonal(rows, 1);
+	for(size_t i=0 ; i<rows ; ++i)
+	{
+		_diagonal.matrix[i] = matrix[i*cols+i];
+	}
+	return _diagonal;
+}
+
 // Find Inverse of a square matrix.
-//Matrix Matrix::Inverse() const
-//{
-//	assert(rows>0 && cols>0 && rows==cols);
-//	
-//	// Size of the square matrix.
-//	int _dim = rows;
-//	
-//	// Create a copy of the matrix.
-//	double* _matrixLU = new double[_dim*_dim];
-//	memcpy(_matrixLU, matrix, _dim*_dim*sizeof(double));
-//	gsl_matrix_view _gslLU = gsl_matrix_view_array(_matrixLU, _dim, _dim);
-//	
-//	// Compute the LU decomposition.
-//	gsl_permutation* p = gsl_permutation_alloc(_dim);
-//	int s;
-//	gsl_linalg_LU_decomp(&_gslLU.matrix, p, &s);
-//	
-//	// Compute inverse.
-//	Matrix _inverse(_dim, _dim);
-//	gsl_matrix_view gslI = gsl_matrix_view_array(_inverse.matrix, _dim, _dim);
-//	gsl_linalg_LU_invert(&_gslLU.matrix, p, &gslI.matrix);
-//	
-//	// Free local variables.
-//	gsl_permutation_free(p);
-//	delete [] _matrixLU;
-//	
-//	return _inverse;
-//}
+Matrix Matrix::Inverse() const
+{
+	assert(rows>0 && cols>0 && rows==cols);
+	
+	double* _buffer = new double[rows * cols];
+	memcpy(_buffer, matrix, rows * cols * sizeof(double));
+
+	typedef  Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> MatrixXd;
+	Eigen::Map<MatrixXd> _map(_buffer, rows, cols);
+	_map = _map.inverse();
+
+	Matrix _inverse(rows, cols);
+	_inverse.matrix = _buffer;
+	return _inverse;
+}
+
 // finds SVD of a matrix.
-//Matrix Matrix::Svd(Matrix* S, Matrix* V) const
-//{
-//	// Create a copy of the matrix.
-//	double* _matrixA = new double[rows*cols];
-//	memcpy(_matrixA, matrix, rows*cols*sizeof(double));
-//	gsl_matrix_view _gslA = gsl_matrix_view_array(_matrixA, rows, cols);
-//	
-//	// Create matrices for U, S and V.
-//	Matrix _S(cols, 1);
-//	*V = Matrix(cols, cols);
-//	gsl_vector_view _gslS = gsl_vector_view_array(_S.matrix, cols);
-//	gsl_matrix_view _gslV = gsl_matrix_view_array(V->matrix, cols, cols);
-//	
-//	Matrix _work(cols, 1);
-//	gsl_vector_view _gslWork = gsl_vector_view_array(_work.matrix, cols);
-//	gsl_linalg_SV_decomp(&_gslA.matrix, &_gslV.matrix, &_gslS.vector, &_gslWork.vector);
-//	
-//	*S = Matrix(cols, cols, M_ZEROS);
-//	for(int i=0 ; i<cols ; ++i)
-//	{
-//		S->matrix[i*cols+i] = _S.matrix[i];
-//	}
-//	
-//	return Matrix(rows, cols, _matrixA);
-//}
+Matrix Matrix::Svd(Matrix* S, Matrix* V) const
+{
+	typedef  Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> MatrixXd;
+	Eigen::Map<MatrixXd> _map(matrix, rows, cols);
+
+	Eigen::BDCSVD<MatrixXd> _results = _map.bdcSvd(Eigen::ComputeFullU | Eigen::ComputeFullV);
+	const Eigen::MatrixXd&     _U       = _results.matrixU();
+	const Eigen::VectorXd&     _S       = _results.singularValues();
+	const Eigen::MatrixXd&     _V       = _results.matrixV();
+
+	Matrix U(size_t(_U.rows()), size_t(_U.cols()), _U.data());
+	*S = Matrix(size_t(_S.rows()), size_t(_S.cols()), _S.data());
+	*V = Matrix(size_t(_V.rows()), size_t(_V.cols()), _V.data());
+	return U;
+}
+
 // return Determinant of matrix.
-//double Matrix::Determinant() const
-//{
-//	// Size of the square matrix.
-//	int _dim = rows;
-//	
-//	// Create a copy of the matrix.
-//	double* _matrixLU = new double[_dim*_dim];
-//	memcpy(_matrixLU, matrix, _dim*_dim*sizeof(double));
-//	gsl_matrix_view _gslLU = gsl_matrix_view_array(_matrixLU, _dim, _dim);
-//	
-//	// Compute the LU decomposition.
-//	gsl_permutation* p = gsl_permutation_alloc(_dim);
-//	int s;
-//	gsl_linalg_LU_decomp(&_gslLU.matrix, p, &s);
-//	
-//	// Compute determinant.
-//	double _det = gsl_linalg_LU_det(&_gslLU.matrix, s);
-//	
-//	// Free local variables.
-//	gsl_permutation_free(p);
-//	delete [] _matrixLU;
-//	
-//	return _det;
-//}
+double Matrix::Determinant() const
+{
+	typedef  Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> MatrixXd;
+	Eigen::Map<MatrixXd> _map(matrix, rows, cols);
+	return _map.determinant();
+}
 // ------------------------------------------------------------------------- //
 
 
 // ------------------------------------------------------------------------- //
-//Matrix Matrix::SolveAxB(const Matrix& A, const Matrix& B)
-//{
-//	assert(A.rows==B.rows && B.cols==1);
-//	
-//	// Compute the LU decomposition of A.
-//	gsl_matrix*      gslA = gsl_matrix_alloc(A.rows, A.cols);
-//	gsl_permutation* p    = gsl_permutation_alloc(A.rows);
-//	int s;
-//	gsl_matrix_memcpy(gslA, &gsl_matrix_view_array(A.matrix, A.rows, A.cols).matrix);
-//	gsl_linalg_LU_decomp(gslA, p, &s);
-//	
-//	// Solve A x = B.
-//	gsl_vector* gslB = gsl_vector_alloc(B.rows);
-//	gsl_vector* gslX = gsl_vector_alloc(B.rows);
-//	gsl_vector_memcpy(gslB, &gsl_vector_view_array(B.matrix, B.rows).vector);
-//	gsl_linalg_LU_solve(gslA, p, gslB, gslX);
-//	
-//	// Copy result to Matrix type.
-//	Matrix X(A.cols, 1);
-//	gsl_vector_view gslTemp = gsl_vector_view_array(X.matrix, A.cols);
-//	gsl_vector_memcpy(&gslTemp.vector, gslX);
-//	
-//	// Free gsl variables.
-//	gsl_matrix_free(gslA);
-//	gsl_vector_free(gslB);
-//	gsl_vector_free(gslX);
-//	gsl_permutation_free(p);
-//	
-//	return X;
-//}
+Matrix Matrix::SolveAxB(const Matrix& A, const Matrix& B)
+{
+	typedef  Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> MatrixXd;
+	Eigen::Map<MatrixXd> _A(A.matrix, A.rows, A.cols);
+	Eigen::Map<MatrixXd> _B(B.matrix, B.rows, B.cols);
+
+	const Eigen::MatrixXd& _X = _A.partialPivLu().solve(_B);
+
+	//const Eigen::MatrixXd& _X = _A.jacobiSvd(Eigen::ComputeThinU | Eigen::ComputeThinV).solve(_B);
+	return Matrix(size_t(_X.rows()), size_t(_X.cols()), _X.data());
+}
 // ------------------------------------------------------------------------- //
 
 
@@ -642,16 +679,20 @@ double Matrix::VectorNorm2()
 // for standard IO.
 std::ostream& operator <<(std::ostream& out, const Matrix &B)
 {
-	if((B.rows==0 && B.cols==0) || B.matrix==NULL)
+	if ((B.rows == 0 && B.cols == 0) || B.matrix == nullptr)
+	{
 		out << "Null Matrix";
+	}
 	
 	out << B.rows << " " << B.cols;
-	for(int i=0 ; i<B.rows ; i++)
+	for(size_t i=0 ; i<B.rows ; i++)
 	{
 		out << std::endl;
 		
-		for(int j=0 ; j<B.cols ; j++)
-			out << B(i,j) << " ";
+		for (size_t j = 0; j < B.cols; j++)
+		{
+			out << B(i, j) << " ";
+		}
 	}
 	return out;
 }
@@ -660,24 +701,18 @@ std::istream& operator >>(std::istream& in, Matrix &B)
 {
 //	assert(B.rows!=0 && B.cols!=0 && B.matrix!=NULL);
 	
-	int r, c;
+	size_t r, c;
 	in >> r >> c;
 	B = Matrix(r, c);
 	
-	for(int i=0 ; i<B.rows ; i++)
-		for(int j=0 ; j<B.cols ; j++)
-			in >> B(i,j);
+	for (size_t i = 0; i < B.rows; i++)
+	{
+		for (size_t j = 0; j < B.cols; j++)
+		{
+			in >> B(i, j);
+		}
+	}
 	return in;
-}
-// ------------------------------------------------------------------------- //
-
-
-// ------------------------------------------------------------------------- //
-Matrix Matrix::EigValsSymMat()
-{
-	Matrix eigVals;
-	
-	return eigVals;
 }
 // ------------------------------------------------------------------------- //
 
@@ -685,61 +720,37 @@ Matrix Matrix::EigValsSymMat()
 // ------------------------------------------------------------------------- //
 void Matrix::Write(std::ostream& out) const
 {
-	if((rows==0 && cols==0) || matrix==NULL)
+	if ((rows == 0 && cols == 0) || matrix == nullptr)
+	{
 		out << "Null Matrix";
+	}
 	
 	out << rows << " " << cols;
-	for(int i=0 ; i<rows ; i++)
+	for(size_t i=0 ; i<rows ; i++)
 	{
 		out << std::endl;
 		
-		for(int j=0 ; j<cols ; j++)
-			out << (*this)(i,j) << " ";
+		for (size_t j = 0; j < cols; j++)
+		{
+			out << (*this)(i, j) << " ";
+		}
 	}
 }
 
 void Matrix::Read(std::istream& in)
 {
-	int r, c;
+	size_t r, c;
 	in >> r >> c;
 	*this = Matrix(r, c);
 	
-	for(int i=0 ; i<rows ; i++)
-		for(int j=0 ; j<cols ; j++)
-			in >> (*this)(i,j);
+	for (size_t i = 0; i < rows; i++)
+	{
+		for (size_t j = 0; j < cols; j++)
+		{
+			in >> (*this)(i, j);
+		}
+	}
 }
-// ------------------------------------------------------------------------- //
-
-
-// ------------------------------------------------------------------------- //
-//void Matrix::WriteBin(std::ostream& out) const
-//{
-//	SUtils::writeFundamental(out, rows);
-//	SUtils::writeFundamental(out, cols);
-//	
-//	for(int i=0 ; i<rows ; i++)
-//	{
-//		for(int j=0 ; j<cols ; j++)
-//		{
-//			SUtils::writeFundamental(out,  this->matrix[i*cols + j]);
-//		}
-//	}
-//}
-//void Matrix::ReadBin(std::istream& in)
-//{
-//	rows = SUtils::readFundamental<int>(in);
-//	cols = SUtils::readFundamental<int>(in);
-//	
-//	*this = Matrix(rows, cols);
-//	
-//	for(int i=0 ; i<rows ; i++)
-//	{
-//		for(int j=0 ; j<cols ; j++)
-//		{
-//			this->matrix[i*cols + j] = SUtils::readFundamental<double>(in);
-//		}
-//	}
-//}
 // ------------------------------------------------------------------------- //
 
 };	// End namespace SMathLib.

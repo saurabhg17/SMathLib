@@ -1,3 +1,8 @@
+// 
+// This file is part of SLogLib; you can redistribute it and/or 
+// modify it under the terms of the MIT License.
+// Author: Saurabh Garg (saurabhgarg@mysoc.net)
+// 
 
 #ifndef _SMATHLIB_MATRIX_H_
 #define _SMATHLIB_MATRIX_H_
@@ -8,15 +13,19 @@
 namespace SMathLib {
 ;
 
-// Some constants used to define matrix type.
-const int M_NULL      = 0;
-const int M_SQRMATRIX = 1;
-const int M_ROWVECTOR = 2;
-const int M_COLVECTOR = 3;
-const int M_ZEROS     = 4;
-const int M_ONES      = 5;
-const int M_RAND      = 6;
-const int M_EYE       = 7;
+// Define the matrix type.
+enum class MatrixType
+{
+	Null         = 0,
+	Square       = 1,
+	RowVector    = 2,
+	ColumnVector = 3,
+	Zero         = 4,
+	Ones         = 5,
+	Random       = 6,
+	Identity     = 7
+};
+
 
 class SMATHLIB_DLL_API Matrix
 {
@@ -29,24 +38,22 @@ public:
 	// IO functions.
 	void Write(std::ostream& out) const;
 	void Read(std::istream& in);
-	//void WriteBin(std::ostream& out) const;
-	//void ReadBin(std::istream& in);
 	
 	// Functions.
-	//double	Determinant() const;
-	//Matrix  Svd(Matrix *sigma, Matrix *v) const;
-	//Matrix  Inverse() const;
-	Matrix  EigValsSymMat();
+	double	Determinant() const;
+	Matrix  Svd(Matrix* sigma, Matrix* v) const;
+	Matrix  Inverse() const;
 	Matrix	Transpose() const;
 	Matrix  AvgRows() const;
-	void    SetSubMatrix(int r1, int c1, int r2, int c2, const Matrix &B);
-	void    SetRow(int r, const Matrix &B);
-	void    SetCol(int c, const Matrix &B);
+	void    SetSubMatrix(size_t r1, size_t c1, size_t r2, size_t c2, const Matrix &B);
+	void    SetRow(size_t r, const Matrix &B);
+	void    SetCol(size_t c, const Matrix &B);
 	double  VectorNorm();
 	double  VectorNorm2();
+	Matrix  Diagonal() const;
 	
 	// Static functions.
-	//static Matrix SolveAxB(const Matrix& A, const Matrix& B);
+	static Matrix SolveAxB(const Matrix& A, const Matrix& b);
 	
 	// Logical operators.
 	bool operator ==(const Matrix& B) const;
@@ -70,25 +77,25 @@ public:
 	// ------------------------------------------------------------
 	//  Assignment, indexing and casting operators.
 	Matrix& operator =(const Matrix& B);
-	double& operator ()(int r, int c) const;
-	double& operator [](int index) const;
-	Matrix operator ()(int r1, int c1, int r2, int c2) const;
+	double& operator ()(size_t r, size_t c) const;
+	double& operator [](size_t index) const;
+	Matrix operator ()(size_t r1, size_t c1, size_t r2, size_t c2) const;
 	// ------------------------------------------------------------
 	
 	
 	// ------------------------------------------------------------
 	// Constructors and destructor.
 	Matrix();
-	Matrix(int r, int c, int type = M_ZEROS);
-	Matrix(int r, int c, double* data);
+	Matrix(size_t r, size_t c, MatrixType type = MatrixType::Zero);
+	Matrix(size_t r, size_t c, const double* data);
 	Matrix(const Matrix& B);
 	virtual ~Matrix();
 	
 	// Variables.
-	int     rows;		// number of rows in matrix.
-	int     cols;		// number of cols in matrix.
-	int     matType;	// M_SQRMATRIX, M_ROWVECTOR, M_COLVECTOR.
-	double* matrix;		// array storing matrix.
+	size_t     rows;    // number of rows in matrix.
+	size_t     cols;    // number of cols in matrix.
+	MatrixType matType; // M_SQRMATRIX, M_ROWVECTOR, M_COLVECTOR.
+	double*    matrix;  // array storing matrix.
 };
 
 };	// End namespace SMathLib.
